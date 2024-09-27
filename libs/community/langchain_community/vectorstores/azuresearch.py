@@ -569,13 +569,22 @@ class AzureSearch(VectorStore):
                 FIELDS_CONTENT_VECTOR: np.array(embedding, dtype=np.float32).tolist(),
                 FIELDS_METADATA: json.dumps(metadata),
             }
+            
             if metadata:
+                fields = []
+                for field in self.fields:
+                    if 'name' in field:
+                        fields.append(field['name'])
+                    else:
+                        fields.append(field)
+                        
                 additional_fields = {
                     k: v
-                    for k, v in metadata.items()
-                    if k in [x.name for x in self.fields]
+                    for k, v in metadata.items() if k in fields
                 }
+                
                 doc.update(additional_fields)
+                
             data.append(doc)
             ids.append(key)
             # Upload data in batches
